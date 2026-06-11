@@ -6,7 +6,7 @@ class Employee {
   final String role;
   final String shift;
   final int salary;
-  final DateTime createdAt;
+  final DateTime? createdAt;
 
   Employee({
     required this.id,
@@ -15,7 +15,7 @@ class Employee {
     required this.role,
     required this.shift,
     required this.salary,
-    required this.createdAt,
+    this.createdAt,
   });
 
   factory Employee.fromJson(Map<String, dynamic> json) {
@@ -26,11 +26,13 @@ class Employee {
       role: json['role']?.toString() ?? '',
       shift: json['shift']?.toString() ?? 'full_day',
       salary: int.tryParse(json['salary'].toString()) ?? 0,
-      createdAt: DateTime.tryParse(json['created_at']?.toString() ?? json['createdAt']?.toString() ?? '') ?? DateTime.now(),
+      createdAt: DateTime.tryParse(
+        json['created_at']?.toString() ?? 
+        json['createdAt']?.toString() ?? ''
+      ),
     );
   }
 
-  // ← TAMBAHKAN INI
   Map<String, dynamic> toJson() {
     return {
       "employee_id": employeeId,
@@ -38,6 +40,7 @@ class Employee {
       "role": role,
       "shift": shift,
       "salary": salary,
+      // "branch" akan ditambahkan otomatis oleh ApiService
     };
   }
 }

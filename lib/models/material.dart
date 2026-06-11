@@ -1,3 +1,4 @@
+// lib/models/material.dart
 class MaterialModel {
   final String id;
   final String materialId;
@@ -5,7 +6,7 @@ class MaterialModel {
   final String unit;
   final int costPerUnit;
   final bool isActive;
-  final DateTime createdAt;
+  final DateTime? createdAt;
 
   MaterialModel({
     required this.id,
@@ -14,7 +15,7 @@ class MaterialModel {
     required this.unit,
     required this.costPerUnit,
     required this.isActive,
-    required this.createdAt,
+    this.createdAt,
   });
 
   factory MaterialModel.fromJson(Map<String, dynamic> json) {
@@ -25,7 +26,10 @@ class MaterialModel {
       unit: json['unit']?.toString() ?? '',
       costPerUnit: int.tryParse(json['cost_per_unit'].toString()) ?? 0,
       isActive: json['is_active'] ?? true,
-      createdAt: DateTime.tryParse(json['created_at']?.toString() ?? '') ?? DateTime.now(),
+      createdAt: DateTime.tryParse(
+        json['created_at']?.toString() ?? 
+        json['createdAt']?.toString() ?? ''
+      ),
     );
   }
 
@@ -36,6 +40,7 @@ class MaterialModel {
       "unit": unit,
       "cost_per_unit": costPerUnit,
       "is_active": isActive,
+      // "branch" akan ditambahkan otomatis oleh ApiService
     };
   }
 }

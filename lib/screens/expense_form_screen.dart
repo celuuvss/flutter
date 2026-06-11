@@ -39,6 +39,21 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.expense == null ? "Tambah Pengeluaran" : "Edit Pengeluaran"),
+        actions: [
+          // Tampilkan cabang saat ini
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.only(right: 16.0),
+              child: Chip(
+                label: Text(
+                  _api.currentBranchName.toUpperCase(),
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                ),
+                backgroundColor: Colors.orange.shade100,
+              ),
+            ),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -46,31 +61,70 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
           key: _formKey,
           child: ListView(
             children: [
+              // Info Cabang
+              Card(
+                color: Colors.orange.shade50,
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.location_city, color: Colors.orange),
+                      const SizedBox(width: 8),
+                      Text(
+                        "Cabang: ${_api.currentBranchName.toUpperCase()}",
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
               TextFormField(
                 controller: _expenseIdController,
-                decoration: const InputDecoration(labelText: "Expense ID"),
+                decoration: const InputDecoration(
+                  labelText: "Expense ID",
+                  border: OutlineInputBorder(),
+                ),
                 validator: (v) => v!.isEmpty ? "Wajib diisi" : null,
               ),
+              const SizedBox(height: 12),
               TextFormField(
                 controller: _typeController,
-                decoration: const InputDecoration(labelText: "Jenis Pengeluaran (listrik, gaji, dll)"),
+                decoration: const InputDecoration(
+                  labelText: "Jenis Pengeluaran (listrik, gaji, dll)",
+                  border: OutlineInputBorder(),
+                ),
                 validator: (v) => v!.isEmpty ? "Wajib diisi" : null,
               ),
+              const SizedBox(height: 12),
               TextFormField(
                 controller: _amountController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: "Jumlah (Rp)"),
+                decoration: const InputDecoration(
+                  labelText: "Jumlah (Rp)",
+                  border: OutlineInputBorder(),
+                ),
                 validator: (v) => v!.isEmpty ? "Wajib diisi" : null,
               ),
+              const SizedBox(height: 12),
               TextFormField(
                 controller: _descriptionController,
-                decoration: const InputDecoration(labelText: "Deskripsi"),
+                decoration: const InputDecoration(
+                  labelText: "Deskripsi",
+                  border: OutlineInputBorder(),
+                ),
                 maxLines: 2,
               ),
+              const SizedBox(height: 12),
               TextFormField(
                 controller: _referenceController,
-                decoration: const InputDecoration(labelText: "Reference (opsional)"),
+                decoration: const InputDecoration(
+                  labelText: "Reference (opsional)",
+                  border: OutlineInputBorder(),
+                ),
               ),
+              const SizedBox(height: 12),
               ListTile(
                 title: const Text("Tanggal"),
                 subtitle: Text("${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}"),
@@ -82,7 +136,9 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
                     firstDate: DateTime(2020),
                     lastDate: DateTime(2030),
                   );
-                  if (picked != null) setState(() => _selectedDate = picked);
+                  if (picked != null) {
+                    setState(() => _selectedDate = picked);
+                  }
                 },
               ),
               const SizedBox(height: 30),
@@ -91,22 +147,27 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
                   if (_formKey.currentState!.validate()) {
                     final expense = Expense(
                       id: widget.expense?.id ?? '',
-                      expenseId: _expenseIdController.text,
-                      type: _typeController.text,
+                      expenseId: _expenseIdController.text.trim(),
+                      type: _typeController.text.trim(),
                       amount: int.parse(_amountController.text),
                       date: _selectedDate,
-                      description: _descriptionController.text,
-                      reference: _referenceController.text,
+                      description: _descriptionController.text.trim(),
+                      reference: _referenceController.text.trim(),
                     );
 
                     bool success = widget.expense == null
                         ? await _api.createExpense(expense)
-                        : true; // update nanti
+                        : true; // TODO: Tambahkan updateExpense nanti di ApiService
 
                     if (success) {
                       Navigator.pop(context, true);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("✅ Berhasil disimpan")),
+                      );
                     } else {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Gagal menyimpan")));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("❌ Gagal menyimpan")),
+                      );
                     }
                   }
                 },

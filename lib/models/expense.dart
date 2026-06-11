@@ -1,3 +1,4 @@
+// lib/models/expense.dart
 class Expense {
   final String id;
   final String expenseId;
@@ -6,6 +7,7 @@ class Expense {
   final DateTime date;
   final String description;
   final String? reference;
+  final DateTime? createdAt;
 
   Expense({
     required this.id,
@@ -15,6 +17,7 @@ class Expense {
     required this.date,
     required this.description,
     this.reference,
+    this.createdAt,
   });
 
   factory Expense.fromJson(Map<String, dynamic> json) {
@@ -26,6 +29,10 @@ class Expense {
       date: DateTime.tryParse(json['date']?.toString() ?? '') ?? DateTime.now(),
       description: json['description']?.toString() ?? '',
       reference: json['reference']?.toString(),
+      createdAt: DateTime.tryParse(
+        json['created_at']?.toString() ?? 
+        json['createdAt']?.toString() ?? ''
+      ),
     );
   }
 
@@ -36,7 +43,8 @@ class Expense {
       "amount": amount,
       "date": date.toIso8601String(),
       "description": description,
-      "reference": reference,
+      if (reference != null) "reference": reference,
+      // "branch" akan ditambahkan otomatis oleh ApiService
     };
   }
 }

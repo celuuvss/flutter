@@ -3,6 +3,7 @@ import 'screens/employees_screen.dart';
 import 'screens/products_screen.dart';
 import 'screens/expenses_screen.dart';
 import 'screens/materials_screen.dart';
+import 'services/api_service.dart';
 
 void main() {
   runApp(const MyApp());
@@ -25,9 +26,32 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// ==================== HALAMAN PILIH CABANG ====================
-class BranchSelectionScreen extends StatelessWidget {
+// ==================== PILIH CABANG ====================
+class BranchSelectionScreen extends StatefulWidget {
   const BranchSelectionScreen({super.key});
+
+  @override
+  State<BranchSelectionScreen> createState() => _BranchSelectionScreenState();
+}
+
+class _BranchSelectionScreenState extends State<BranchSelectionScreen> {
+  final ApiService api = ApiService();
+
+  final List<Map<String, dynamic>> branches = [
+    {"name": "Surabaya", "location": "Surabaya, Jawa Timur", "color": Colors.blue},
+    {"name": "Jakarta", "location": "Jakarta Pusat", "color": Colors.green},
+    {"name": "Bandung", "location": "Bandung, Jawa Barat", "color": Colors.orange},
+    {"name": "Semarang", "location": "Semarang, Jawa Tengah", "color": Colors.purple},
+    {"name": "Bekasi", "location": "Bekasi, Jawa Barat", "color": Colors.teal},
+  ];
+
+  void _selectBranch(String branchName) {
+    api.setBranch(branchName);
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const HomeScreen()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,65 +65,30 @@ class BranchSelectionScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "Pilih Cabang",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
+            const Text("Pilih Cabang", style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            const Text(
-              "Silakan pilih cabang yang akan dikelola",
-              style: TextStyle(fontSize: 16, color: Colors.grey),
-            ),
+            const Text("Silakan pilih cabang yang akan dikelola", style: TextStyle(fontSize: 16, color: Colors.grey)),
             const SizedBox(height: 24),
-
-            // Daftar Cabang
             Expanded(
-              child: ListView(
-                children: [
-                  _buildBranchCard(
-                    context,
-                    "Cabang Surabaya",
-                    "Surabaya, Jawa Timur",
-                    Icons.location_city,
-                    Colors.blue,
-                    () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const MainBranchScreen()),
+              child: ListView.builder(
+                itemCount: branches.length,
+                itemBuilder: (context, index) {
+                  final b = branches[index];
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.all(16),
+                      leading: CircleAvatar(
+                        backgroundColor: (b['color'] as Color).withOpacity(0.1),
+                        child: Icon(Icons.location_city, color: b['color'] as Color, size: 32),
+                      ),
+                      title: Text("Cabang ${b['name']}", style: const TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: Text(b['location']),
+                      trailing: const Icon(Icons.arrow_forward_ios),
+                      onTap: () => _selectBranch(b['name']),
                     ),
-                  ),
-                  _buildBranchCard(
-                    context,
-                    "Cabang Jakarta",
-                    "Jakarta Pusat",
-                    Icons.location_city,
-                    Colors.green,
-                    () => _showComingSoon(context),
-                  ),
-                  _buildBranchCard(
-                    context,
-                    "Cabang Bandung",
-                    "Bandung, Jawa Barat",
-                    Icons.location_city,
-                    Colors.orange,
-                    () => _showComingSoon(context),
-                  ),
-                  _buildBranchCard(
-                    context,
-                    "Cabang Semarang",
-                    "Semarang, Jawa Tengah",
-                    Icons.location_city,
-                    Colors.purple,
-                    () => _showComingSoon(context),
-                  ),
-                  _buildBranchCard(
-                    context,
-                    "Cabang Bekasi",
-                    "Bekasi, Jawa Barat",
-                    Icons.location_city,
-                    Colors.teal,
-                    () => _showComingSoon(context),
-                  ),
-                ],
+                  );
+                },
               ),
             ),
           ],
@@ -107,68 +96,52 @@ class BranchSelectionScreen extends StatelessWidget {
       ),
     );
   }
-
-  Widget _buildBranchCard(BuildContext context, String title, String subtitle,
-      IconData icon, Color color, VoidCallback onTap) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(16),
-        leading: CircleAvatar(
-          backgroundColor: color.withOpacity(0.1),
-          child: Icon(icon, color: color, size: 30),
-        ),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-        subtitle: Text(subtitle),
-        trailing: const Icon(Icons.arrow_forward_ios),
-        onTap: onTap,
-      ),
-    );
-  }
-
-  void _showComingSoon(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Fitur Cabang ini sedang dalam pengembangan")),
-    );
-  }
 }
 
-// ==================== MAIN BRANCH SCREEN (Surabaya) ====================
-class MainBranchScreen extends StatelessWidget {
-  const MainBranchScreen({super.key});
+// ==================== HOME SCREEN ====================
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  int _currentIndex = 0;
+  final ApiService _api = ApiService();
+
+  final List<Widget> _screens = [
+    const EmployeesScreen(),
+    const ProductsScreen(),
+    const ExpensesScreen(),
+    const MaterialsScreen(),
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Cabang Surabaya"),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
+        title: Text("Cabang ${_api.currentBranchName.toUpperCase()}"),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.swap_horiz),
+            tooltip: "Ganti Cabang",
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => const BranchSelectionScreen()),
+              );
+            },
+          ),
+        ],
       ),
-      body: const Center(
-        child: Text(
-          "Selamat datang di\nCabang Surabaya",
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 22),
-        ),
-      ),
+      body: _screens[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        currentIndex: 0,
-        onTap: (index) {
-          // Navigasi antar screen
-          if (index == 0) {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const EmployeesScreen()));
-          } else if (index == 1) {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const ProductsScreen()));
-          } else if (index == 2) {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const ExpensesScreen()));
-          } else if (index == 3) {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const MaterialsScreen()));
-          }
-        },
+        currentIndex: _currentIndex,
+        onTap: (index) => setState(() => _currentIndex = index),
+        selectedItemColor: Colors.brown,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.people), label: "Karyawan"),
           BottomNavigationBarItem(icon: Icon(Icons.inventory), label: "Produk"),

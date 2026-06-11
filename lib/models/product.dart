@@ -1,3 +1,4 @@
+// lib/models/product.dart
 class Product {
   final String id;
   final String productId;
@@ -6,7 +7,7 @@ class Product {
   final int price;
   final int cost;
   final bool isActive;
-  final DateTime createdAt;
+  final DateTime? createdAt;
 
   Product({
     required this.id,
@@ -16,7 +17,7 @@ class Product {
     required this.price,
     required this.cost,
     required this.isActive,
-    required this.createdAt,
+    this.createdAt,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
@@ -28,7 +29,10 @@ class Product {
       price: int.tryParse(json['price'].toString()) ?? 0,
       cost: int.tryParse(json['cost'].toString()) ?? 0,
       isActive: json['is_active'] ?? true,
-      createdAt: DateTime.tryParse(json['created_at']?.toString() ?? '') ?? DateTime.now(),
+      createdAt: DateTime.tryParse(
+        json['created_at']?.toString() ?? 
+        json['createdAt']?.toString() ?? ''
+      ),
     );
   }
 
@@ -40,6 +44,7 @@ class Product {
       "price": price,
       "cost": cost,
       "is_active": isActive,
+      // "branch" akan ditambahkan otomatis oleh ApiService
     };
   }
 }

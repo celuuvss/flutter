@@ -15,6 +15,11 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
   List<MaterialModel> materials = [];
   bool isLoading = false;
 
+  // Daftar Cabang
+  final List<String> branches = [
+    'surabaya', 'jakarta', 'bandung', 'semarang', 'bekasi'
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -26,9 +31,19 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
     try {
       materials = await _api.getMaterials();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Gagal: $e")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Gagal memuat data: $e"))
+      );
     }
     setState(() => isLoading = false);
+  }
+
+  // Ganti Cabang
+  void _changeBranch(String newBranch) {
+    setState(() {
+      _api.setBranch(newBranch);
+    });
+    _loadMaterials(); // Refresh data sesuai cabang
   }
 
   Future<void> _showForm([MaterialModel? material]) async {
@@ -54,7 +69,12 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
 
     if (confirm == true) {
       final success = await _api.deleteMaterial(material.id);
-      if (success) _loadMaterials();
+      if (success) {
+        _loadMaterials();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("✅ Material dihapus"))
+        );
+      }
     }
   }
 
@@ -63,7 +83,37 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Data Material"),
-        leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => Navigator.pop(context)),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+        actions: [
+          // Branch Selector
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.location_city),
+            tooltip: "Pilih Cabang",
+            onSelected: _changeBranch,
+            itemBuilder: (context) {
+              return branches.map((branch) {
+                final isSelected = _api.currentBranchName == branch;
+                return PopupMenuItem(
+                  value: branch,
+                  child: Row(
+                    children: [
+                      Text(
+                        branch.toUpperCase(),
+                        style: TextStyle(
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        ),
+                      ),
+                      if (isSelected) const Icon(Icons.check, size: 18, color: Colors.green),
+                    ],
+                  ),
+                );
+              }).toList();
+            },
+          ),
+        ],
       ),
       body: RefreshIndicator(
         onRefresh: _loadMaterials,
@@ -78,14 +128,23 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
                       return Card(
                         margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         child: ListTile(
-                          leading: const CircleAvatar(backgroundColor: Colors.purple, child: Icon(Icons.inventory_2, color: Colors.white)),
+                          leading: const CircleAvatar(
+                            backgroundColor: Colors.purple,
+                            child: Icon(Icons.inventory_2, color: Colors.white)
+                          ),
                           title: Text(mat.name, style: const TextStyle(fontWeight: FontWeight.bold)),
                           subtitle: Text("${mat.unit} • Rp ${mat.costPerUnit}/unit"),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              IconButton(icon: const Icon(Icons.edit, color: Colors.blue), onPressed: () => _showForm(mat)),
-                              IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => _deleteMaterial(mat)),
+                              IconButton(
+                                icon: const Icon(Icons.edit, color: Colors.blue),
+                                onPressed: () => _showForm(mat)
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete, color: Colors.red),
+                                onPressed: () => _deleteMaterial(mat)
+                              ),
                             ],
                           ),
                         ),

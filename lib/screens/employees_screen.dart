@@ -12,10 +12,16 @@ class EmployeesScreen extends StatefulWidget {
 
 class _EmployeesScreenState extends State<EmployeesScreen> {
   final ApiService _api = ApiService();
+  
   List<Employee> employees = [];
   bool isLoading = false;
   String? searchQuery;
   String? selectedShift;
+
+  // Daftar Cabang
+  final List<String> branches = [
+    'surabaya', 'jakarta', 'bandung', 'semarang', 'bekasi'
+  ];
 
   @override
   void initState() {
@@ -26,14 +32,39 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
   Future<void> _loadEmployees() async {
     setState(() => isLoading = true);
     try {
-      // Panggil tanpa parameter shift dan search dulu (untuk menghindari error)
       employees = await _api.getEmployees();
+      
+      // Filter di client-side
+      if (searchQuery != null && searchQuery!.isNotEmpty) {
+        final query = searchQuery!.toLowerCase();
+        employees = employees.where((emp) =>
+          (emp.name.toLowerCase().contains(query)) ||
+          (emp.employeeId.toLowerCase().contains(query))
+        ).toList();
+      }
+
+      if (selectedShift != null) {
+        employees = employees.where((emp) => emp.shift == selectedShift).toList();
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Gagal memuat data: $e")),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Gagal memuat data: $e")),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
     }
-    setState(() => isLoading = false);
+  }
+
+  // Ganti Cabang
+  void _changeBranch(String newBranch) {
+    setState(() {
+      _api.setBranch(newBranch);
+    });
+    _loadEmployees();
   }
 
   Future<void> _showForm([Employee? employee]) async {
@@ -41,7 +72,9 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
       context,
       MaterialPageRoute(builder: (_) => EmployeeFormScreen(employee: employee)),
     );
-    if (result == true) _loadEmployees();
+    if (result == true && mounted) {
+      _loadEmployees();
+    }
   }
 
   Future<void> _deleteEmployee(Employee emp) async {
@@ -52,16 +85,21 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
         content: Text("Yakin menghapus ${emp.name}?"),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context, false), child: const Text("Batal")),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text("Hapus", style: TextStyle(color: Colors.red))),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text("Hapus", style: TextStyle(color: Colors.red)),
+          ),
         ],
       ),
     );
 
-    if (confirm == true) {
+    if (confirm == true && mounted) {
       final success = await _api.deleteEmployee(emp.id);
-      if (success) {
+      if (success && mounted) {
         _loadEmployees();
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("✅ Karyawan dihapus")));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("✅ Karyawan dihapus"))
+        );
       }
     }
   }
@@ -75,6 +113,33 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
+        actions: [
+          // Branch Selector
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.location_city),
+            tooltip: "Pilih Cabang",
+            onSelected: _changeBranch,
+            itemBuilder: (context) {
+              return branches.map((branch) {
+                final isSelected = _api.currentBranchName == branch;
+                return PopupMenuItem(
+                  value: branch,
+                  child: Row(
+                    children: [
+                      Text(
+                        branch.toUpperCase(),
+                        style: TextStyle(
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        ),
+                      ),
+                      if (isSelected) const Icon(Icons.check, size: 18, color: Colors.green),
+                    ],
+                  ),
+                );
+              }).toList();
+            },
+          ),
+        ],
       ),
       body: RefreshIndicator(
         onRefresh: _loadEmployees,
@@ -92,7 +157,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                         border: OutlineInputBorder(),
                       ),
                       onChanged: (value) {
-                        searchQuery = value.isEmpty ? null : value;
+                        setState(() => searchQuery = value.isEmpty ? null : value);
                         _loadEmployees();
                       },
                     ),

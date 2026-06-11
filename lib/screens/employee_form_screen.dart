@@ -37,6 +37,21 @@ class _EmployeeFormScreenState extends State<EmployeeFormScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.employee == null ? "Tambah Karyawan" : "Edit Karyawan"),
+        actions: [
+          // Tampilkan cabang saat ini
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.only(right: 16.0),
+              child: Chip(
+                label: Text(
+                  _api.currentBranchName.toUpperCase(),
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                ),
+                backgroundColor: Colors.blue.shade100,
+              ),
+            ),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -44,27 +59,58 @@ class _EmployeeFormScreenState extends State<EmployeeFormScreen> {
           key: _formKey,
           child: ListView(
             children: [
+              // Info Cabang
+              Card(
+                color: Colors.blue.shade50,
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.location_city, color: Colors.blue),
+                      const SizedBox(width: 8),
+                      Text(
+                        "Cabang: ${_api.currentBranchName.toUpperCase()}",
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
               TextFormField(
                 controller: _employeeIdController,
-                decoration: const InputDecoration(labelText: "Employee ID (contoh: EMP008)"),
+                decoration: const InputDecoration(
+                  labelText: "Employee ID (contoh: EMP008)",
+                  border: OutlineInputBorder(),
+                ),
                 validator: (value) => value!.isEmpty ? "Employee ID wajib diisi" : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(labelText: "Nama Lengkap"),
+                decoration: const InputDecoration(
+                  labelText: "Nama Lengkap",
+                  border: OutlineInputBorder(),
+                ),
                 validator: (value) => value!.isEmpty ? "Nama wajib diisi" : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _roleController,
-                decoration: const InputDecoration(labelText: "Jabatan / Role"),
+                decoration: const InputDecoration(
+                  labelText: "Jabatan / Role",
+                  border: OutlineInputBorder(),
+                ),
                 validator: (value) => value!.isEmpty ? "Role wajib diisi" : null,
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
                 value: _selectedShift,
-                decoration: const InputDecoration(labelText: "Shift"),
+                decoration: const InputDecoration(
+                  labelText: "Shift",
+                  border: OutlineInputBorder(),
+                ),
                 items: const [
                   DropdownMenuItem(value: "pagi", child: Text("Pagi")),
                   DropdownMenuItem(value: "siang", child: Text("Siang")),
@@ -79,7 +125,10 @@ class _EmployeeFormScreenState extends State<EmployeeFormScreen> {
               TextFormField(
                 controller: _salaryController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: "Gaji (Rp)"),
+                decoration: const InputDecoration(
+                  labelText: "Gaji (Rp)",
+                  border: OutlineInputBorder(),
+                ),
                 validator: (value) => value!.isEmpty ? "Gaji wajib diisi" : null,
               ),
               const SizedBox(height: 30),
@@ -101,7 +150,7 @@ class _EmployeeFormScreenState extends State<EmployeeFormScreen> {
                         : await _api.updateEmployee(widget.employee!.id, employee);
 
                     if (success) {
-                      Navigator.pop(context, true); // Kembali + refresh
+                      Navigator.pop(context, true);
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text("✅ Berhasil disimpan")),
                       );

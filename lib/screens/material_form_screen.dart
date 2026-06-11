@@ -37,6 +37,21 @@ class _MaterialFormScreenState extends State<MaterialFormScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.material == null ? "Tambah Material" : "Edit Material"),
+        actions: [
+          // Tampilkan cabang saat ini
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.only(right: 16.0),
+              child: Chip(
+                label: Text(
+                  _api.currentBranchName.toUpperCase(),
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                ),
+                backgroundColor: Colors.purple.shade100,
+              ),
+            ),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -44,31 +59,67 @@ class _MaterialFormScreenState extends State<MaterialFormScreen> {
           key: _formKey,
           child: ListView(
             children: [
+              // Info Cabang
+              Card(
+                color: Colors.purple.shade50,
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.location_city, color: Colors.purple),
+                      const SizedBox(width: 8),
+                      Text(
+                        "Cabang: ${_api.currentBranchName.toUpperCase()}",
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
               TextFormField(
                 controller: _materialIdController,
-                decoration: const InputDecoration(labelText: "Material ID"),
+                decoration: const InputDecoration(
+                  labelText: "Material ID",
+                  border: OutlineInputBorder(),
+                ),
                 validator: (v) => v!.isEmpty ? "Wajib diisi" : null,
               ),
+              const SizedBox(height: 12),
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(labelText: "Nama Material"),
+                decoration: const InputDecoration(
+                  labelText: "Nama Material",
+                  border: OutlineInputBorder(),
+                ),
                 validator: (v) => v!.isEmpty ? "Wajib diisi" : null,
               ),
+              const SizedBox(height: 12),
               TextFormField(
                 controller: _unitController,
-                decoration: const InputDecoration(labelText: "Satuan (kg, pcs, liter, dll)"),
+                decoration: const InputDecoration(
+                  labelText: "Satuan (kg, pcs, liter, dll)",
+                  border: OutlineInputBorder(),
+                ),
                 validator: (v) => v!.isEmpty ? "Wajib diisi" : null,
               ),
+              const SizedBox(height: 12),
               TextFormField(
                 controller: _costController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: "Harga per Unit (Rp)"),
+                decoration: const InputDecoration(
+                  labelText: "Harga per Unit (Rp)",
+                  border: OutlineInputBorder(),
+                ),
                 validator: (v) => v!.isEmpty ? "Wajib diisi" : null,
               ),
+              const SizedBox(height: 12),
               SwitchListTile(
                 title: const Text("Status Aktif"),
                 value: _isActive,
                 onChanged: (val) => setState(() => _isActive = val),
+                contentPadding: EdgeInsets.zero,
               ),
               const SizedBox(height: 30),
               ElevatedButton(
