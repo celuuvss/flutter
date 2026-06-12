@@ -3,7 +3,8 @@ import 'package:http/http.dart' as http;
 
 import '../models/employee.dart';
 import '../models/product.dart';
-import '../models/expense.dart';
+import '../models/product_inventory.dart';
+import '../models/material_inventory.dart';
 import '../models/material.dart';
 
 class ApiService {
@@ -12,7 +13,7 @@ class ApiService {
   factory ApiService() => _instance;
   ApiService._internal();
 
-  static const String baseUrl = "http://192.168.0.101:5000";
+  static const String baseUrl = "http://192.168.1.4:5000";
 
   String currentBranch = "surabaya";
 
@@ -30,7 +31,10 @@ class ApiService {
 
   // ==================== EMPLOYEES ====================
   Future<List<Employee>> getEmployees() async {
-    final res = await http.get(_buildUri("employees"), headers: {'x-branch': currentBranch});
+    final res = await http.get(
+      _buildUri("employees"),
+      headers: {'x-branch': currentBranch},
+    );
     if (res.statusCode == 200) {
       final data = json.decode(res.body);
       return (data['data'] as List).map((e) => Employee.fromJson(e)).toList();
@@ -41,28 +45,37 @@ class ApiService {
   Future<bool> createEmployee(Employee emp) async {
     final body = emp.toJson();
     body['branch'] = currentBranch;
-    final res = await http.post(_buildUri("employees"),
-        headers: {"Content-Type": "application/json", 'x-branch': currentBranch},
-        body: json.encode(body));
+    final res = await http.post(
+      _buildUri("employees"),
+      headers: {"Content-Type": "application/json", 'x-branch': currentBranch},
+      body: json.encode(body),
+    );
     return res.statusCode == 201 || res.statusCode == 200;
   }
 
   Future<bool> updateEmployee(String id, Employee emp) async {
-    final res = await http.put(_buildUri("employees/$id"),
-        headers: {"Content-Type": "application/json", 'x-branch': currentBranch},
-        body: json.encode(emp.toJson()));
+    final res = await http.put(
+      _buildUri("employees/$id"),
+      headers: {"Content-Type": "application/json", 'x-branch': currentBranch},
+      body: json.encode(emp.toJson()),
+    );
     return res.statusCode == 200;
   }
 
   Future<bool> deleteEmployee(String id) async {
-    final res = await http.delete(_buildUri("employees/$id"),
-        headers: {'x-branch': currentBranch});
+    final res = await http.delete(
+      _buildUri("employees/$id"),
+      headers: {'x-branch': currentBranch},
+    );
     return res.statusCode == 200;
   }
 
   // ==================== PRODUCTS ====================
   Future<List<Product>> getProducts() async {
-    final res = await http.get(_buildUri("products"), headers: {'x-branch': currentBranch});
+    final res = await http.get(
+      _buildUri("products"),
+      headers: {'x-branch': currentBranch},
+    );
     if (res.statusCode == 200) {
       final data = json.decode(res.body);
       return (data['data'] as List).map((e) => Product.fromJson(e)).toList();
@@ -73,56 +86,134 @@ class ApiService {
   Future<bool> createProduct(Product product) async {
     final body = product.toJson();
     body['branch'] = currentBranch;
-    final res = await http.post(_buildUri("products"),
-        headers: {"Content-Type": "application/json", 'x-branch': currentBranch},
-        body: json.encode(body));
+    final res = await http.post(
+      _buildUri("products"),
+      headers: {"Content-Type": "application/json", 'x-branch': currentBranch},
+      body: json.encode(body),
+    );
     return res.statusCode == 201 || res.statusCode == 200;
   }
 
   Future<bool> updateProduct(String id, Product product) async {
-    final res = await http.put(_buildUri("products/$id"),
-        headers: {"Content-Type": "application/json", 'x-branch': currentBranch},
-        body: json.encode(product.toJson()));
+    final res = await http.put(
+      _buildUri("products/$id"),
+      headers: {"Content-Type": "application/json", 'x-branch': currentBranch},
+      body: json.encode(product.toJson()),
+    );
     return res.statusCode == 200;
   }
 
   Future<bool> deleteProduct(String id) async {
-    final res = await http.delete(_buildUri("products/$id"),
-        headers: {'x-branch': currentBranch});
+    final res = await http.delete(
+      _buildUri("products/$id"),
+      headers: {'x-branch': currentBranch},
+    );
     return res.statusCode == 200;
   }
 
-  // ==================== EXPENSES ====================
-  Future<List<Expense>> getExpenses() async {
-    final res = await http.get(_buildUri("expenses"), headers: {'x-branch': currentBranch});
+  // ==================== PRODUCT INVENTORY ====================
+  Future<List<ProductInventory>> getProductInventories() async {
+    final res = await http.get(
+      _buildUri("product_inventories"),
+      headers: {'x-branch': currentBranch},
+    );
     if (res.statusCode == 200) {
       final data = json.decode(res.body);
-      return (data['data'] as List).map((e) => Expense.fromJson(e)).toList();
+      return (data['data'] as List)
+          .map((e) => ProductInventory.fromJson(e))
+          .toList();
     }
-    throw Exception("Gagal mengambil pengeluaran");
+    throw Exception("Gagal mengambil inventori produk");
   }
 
-  Future<bool> createExpense(Expense expense) async {
-    final body = expense.toJson();
+  Future<bool> createProductInventory(ProductInventory inventory) async {
+    final body = inventory.toJson();
     body['branch'] = currentBranch;
-    final res = await http.post(_buildUri("expenses"),
-        headers: {"Content-Type": "application/json", 'x-branch': currentBranch},
-        body: json.encode(body));
+    final res = await http.post(
+      _buildUri("product_inventories"),
+      headers: {"Content-Type": "application/json", 'x-branch': currentBranch},
+      body: json.encode(body),
+    );
     return res.statusCode == 201 || res.statusCode == 200;
   }
 
-  Future<bool> deleteExpense(String id) async {
-    final res = await http.delete(_buildUri("expenses/$id"),
-        headers: {'x-branch': currentBranch});
+  Future<bool> updateProductInventory(
+    String id,
+    ProductInventory inventory,
+  ) async {
+    final res = await http.put(
+      _buildUri("product_inventories/$id"),
+      headers: {"Content-Type": "application/json", 'x-branch': currentBranch},
+      body: json.encode(inventory.toJson()),
+    );
+    return res.statusCode == 200;
+  }
+
+  Future<bool> deleteProductInventory(String id) async {
+    final res = await http.delete(
+      _buildUri("product_inventories/$id"),
+      headers: {'x-branch': currentBranch},
+    );
+    return res.statusCode == 200;
+  }
+
+  // ==================== MATERIAL INVENTORY ====================
+  Future<List<MaterialInventory>> getMaterialInventories() async {
+    final res = await http.get(
+      _buildUri("material_inventories"),
+      headers: {'x-branch': currentBranch},
+    );
+    if (res.statusCode == 200) {
+      final data = json.decode(res.body);
+      return (data['data'] as List)
+          .map((e) => MaterialInventory.fromJson(e))
+          .toList();
+    }
+    throw Exception("Gagal mengambil inventori material");
+  }
+
+  Future<bool> createMaterialInventory(MaterialInventory inventory) async {
+    final body = inventory.toJson();
+    body['branch'] = currentBranch;
+    final res = await http.post(
+      _buildUri("material_inventories"),
+      headers: {"Content-Type": "application/json", 'x-branch': currentBranch},
+      body: json.encode(body),
+    );
+    return res.statusCode == 201 || res.statusCode == 200;
+  }
+
+  Future<bool> updateMaterialInventory(
+    String id,
+    MaterialInventory inventory,
+  ) async {
+    final res = await http.put(
+      _buildUri("material_inventories/$id"),
+      headers: {"Content-Type": "application/json", 'x-branch': currentBranch},
+      body: json.encode(inventory.toJson()),
+    );
+    return res.statusCode == 200;
+  }
+
+  Future<bool> deleteMaterialInventory(String id) async {
+    final res = await http.delete(
+      _buildUri("material_inventories/$id"),
+      headers: {'x-branch': currentBranch},
+    );
     return res.statusCode == 200;
   }
 
   // ==================== MATERIALS ====================
   Future<List<MaterialModel>> getMaterials() async {
-    final res = await http.get(_buildUri("materials"), headers: {'x-branch': currentBranch});
+    final res = await http.get(
+      _buildUri("materials"),
+      headers: {'x-branch': currentBranch},
+    );
     if (res.statusCode == 200) {
       final data = json.decode(res.body);
-      return (data['data'] as List).map((e) => MaterialModel.fromJson(e)).toList();
+      return (data['data'] as List)
+          .map((e) => MaterialModel.fromJson(e))
+          .toList();
     }
     throw Exception("Gagal mengambil material");
   }
@@ -130,22 +221,28 @@ class ApiService {
   Future<bool> createMaterial(MaterialModel material) async {
     final body = material.toJson();
     body['branch'] = currentBranch;
-    final res = await http.post(_buildUri("materials"),
-        headers: {"Content-Type": "application/json", 'x-branch': currentBranch},
-        body: json.encode(body));
+    final res = await http.post(
+      _buildUri("materials"),
+      headers: {"Content-Type": "application/json", 'x-branch': currentBranch},
+      body: json.encode(body),
+    );
     return res.statusCode == 201 || res.statusCode == 200;
   }
 
   Future<bool> updateMaterial(String id, MaterialModel material) async {
-    final res = await http.put(_buildUri("materials/$id"),
-        headers: {"Content-Type": "application/json", 'x-branch': currentBranch},
-        body: json.encode(material.toJson()));
+    final res = await http.put(
+      _buildUri("materials/$id"),
+      headers: {"Content-Type": "application/json", 'x-branch': currentBranch},
+      body: json.encode(material.toJson()),
+    );
     return res.statusCode == 200;
   }
 
   Future<bool> deleteMaterial(String id) async {
-    final res = await http.delete(_buildUri("materials/$id"),
-        headers: {'x-branch': currentBranch});
+    final res = await http.delete(
+      _buildUri("materials/$id"),
+      headers: {'x-branch': currentBranch},
+    );
     return res.statusCode == 200;
   }
 }

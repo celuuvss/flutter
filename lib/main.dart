@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'screens/employees_screen.dart';
 import 'screens/products_screen.dart';
-import 'screens/expenses_screen.dart';
+import 'screens/product_inventory_screen.dart';
+import 'screens/material_inventory_screen.dart';
 import 'screens/materials_screen.dart';
 import 'services/api_service.dart';
 
@@ -17,10 +18,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Sistem Roti Kuasong',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.brown,
-        useMaterial3: true,
-      ),
+      theme: ThemeData(primarySwatch: Colors.brown, useMaterial3: true),
       home: const BranchSelectionScreen(),
     );
   }
@@ -38,10 +36,22 @@ class _BranchSelectionScreenState extends State<BranchSelectionScreen> {
   final ApiService api = ApiService();
 
   final List<Map<String, dynamic>> branches = [
-    {"name": "Surabaya", "location": "Surabaya, Jawa Timur", "color": Colors.blue},
+    {
+      "name": "Surabaya",
+      "location": "Surabaya, Jawa Timur",
+      "color": Colors.blue,
+    },
     {"name": "Jakarta", "location": "Jakarta Pusat", "color": Colors.green},
-    {"name": "Bandung", "location": "Bandung, Jawa Barat", "color": Colors.orange},
-    {"name": "Semarang", "location": "Semarang, Jawa Tengah", "color": Colors.purple},
+    {
+      "name": "Bandung",
+      "location": "Bandung, Jawa Barat",
+      "color": Colors.orange,
+    },
+    {
+      "name": "Semarang",
+      "location": "Semarang, Jawa Tengah",
+      "color": Colors.purple,
+    },
     {"name": "Bekasi", "location": "Bekasi, Jawa Barat", "color": Colors.teal},
   ];
 
@@ -65,9 +75,15 @@ class _BranchSelectionScreenState extends State<BranchSelectionScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Pilih Cabang", style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
+            const Text(
+              "Pilih Cabang",
+              style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
-            const Text("Silakan pilih cabang yang akan dikelola", style: TextStyle(fontSize: 16, color: Colors.grey)),
+            const Text(
+              "Silakan pilih cabang yang akan dikelola",
+              style: TextStyle(fontSize: 16, color: Colors.grey),
+            ),
             const SizedBox(height: 24),
             Expanded(
               child: ListView.builder(
@@ -80,9 +96,16 @@ class _BranchSelectionScreenState extends State<BranchSelectionScreen> {
                       contentPadding: const EdgeInsets.all(16),
                       leading: CircleAvatar(
                         backgroundColor: (b['color'] as Color).withOpacity(0.1),
-                        child: Icon(Icons.location_city, color: b['color'] as Color, size: 32),
+                        child: Icon(
+                          Icons.location_city,
+                          color: b['color'] as Color,
+                          size: 32,
+                        ),
                       ),
-                      title: Text("Cabang ${b['name']}", style: const TextStyle(fontWeight: FontWeight.bold)),
+                      title: Text(
+                        "Cabang ${b['name']}",
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
                       subtitle: Text(b['location']),
                       trailing: const Icon(Icons.arrow_forward_ios),
                       onTap: () => _selectBranch(b['name']),
@@ -113,7 +136,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> _screens = [
     const EmployeesScreen(),
     const ProductsScreen(),
-    const ExpensesScreen(),
+    const ProductInventoryScreen(),
+    const MaterialInventoryScreen(),
     const MaterialsScreen(),
   ];
 
@@ -130,7 +154,9 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (_) => const BranchSelectionScreen()),
+                MaterialPageRoute(
+                  builder: (_) => const BranchSelectionScreen(),
+                ),
               );
             },
           ),
@@ -144,9 +170,22 @@ class _HomeScreenState extends State<HomeScreen> {
         selectedItemColor: Colors.brown,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.people), label: "Karyawan"),
-          BottomNavigationBarItem(icon: Icon(Icons.inventory), label: "Produk"),
-          BottomNavigationBarItem(icon: Icon(Icons.money_off), label: "Pengeluaran"),
-          BottomNavigationBarItem(icon: Icon(Icons.warehouse), label: "Material"),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.shopping_bag),
+            label: "Produk",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.inventory),
+            label: "Inv. Produk",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.archive),
+            label: "Inv. Material",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.warehouse),
+            label: "Material",
+          ),
         ],
       ),
     );
