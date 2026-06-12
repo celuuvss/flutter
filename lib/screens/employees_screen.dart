@@ -109,10 +109,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Data Karyawan"),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
+        
         actions: [
           // Branch Selector
           PopupMenuButton<String>(

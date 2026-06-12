@@ -145,13 +145,13 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Cabang ${_api.currentBranchName.toUpperCase()}"),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.swap_horiz),
-            tooltip: "Ganti Cabang",
-            onPressed: () {
+        title: Text("Cabang ${_api.currentBranchName.toUpperCase()}"),
+
+        leadingWidth: 110,
+        leading: Center(
+          child: InkWell(
+            onTap: () {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
@@ -159,8 +159,24 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               );
             },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.brown),
+                borderRadius: BorderRadius.circular(6),
+                color: Colors.white,
+              ),
+              child: const Text(
+                "Ganti Cabang",
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.brown,
+                ),
+              ),
+            ),
           ),
-        ],
+        ),
       ),
       body: _screens[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(

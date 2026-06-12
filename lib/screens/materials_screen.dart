@@ -83,10 +83,7 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Data Material"),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
+        
         actions: [
           // Branch Selector
           PopupMenuButton<String>(
